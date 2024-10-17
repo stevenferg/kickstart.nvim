@@ -358,6 +358,7 @@ require('lazy').setup({
   },
 
   -- Custom plugin for tree
+  -- I added this plugin but don't know how to config this
   -- TODO: figure out how to change setting to open as a floating window and close when you're done with it
   {
     'nvim-neo-tree/neo-tree.nvim',
@@ -368,6 +369,15 @@ require('lazy').setup({
       'MunifTanjim/nui.nvim',
       -- "3rd/image.nvim", -- Optional image support in preview window: See `# Preview Mode` for more information
     },
+  },
+
+  -- Startup screen plugin
+  {
+    'goolord/alpha-nvim',
+    dependencies = { 'echasnovski/mini.icons' },
+    config = function()
+      require('alpha').setup(require('alpha.themes.startify').config)
+    end,
   },
 
   -- LSP Plugins
