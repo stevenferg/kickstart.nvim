@@ -60,7 +60,7 @@ vim.opt.splitbelow = true
 --  See `:help 'list'`
 --  and `:help 'listchars'`
 vim.opt.list = true
-vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
+vim.opt.listchars = { tab = '  ', trail = '·', nbsp = '␣' }
 
 -- Preview substitutions live, as you type!
 vim.opt.inccommand = 'split'
@@ -70,6 +70,12 @@ vim.opt.cursorline = true
 
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
+
+-- Add code folding by default
+vim.opt.foldcolumn = '1'
+vim.opt.foldmethod = 'expr'
+vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
+vim.opt.foldlevel = 10
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -90,10 +96,10 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
--- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
--- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
--- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
+vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
+vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
+vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
@@ -349,6 +355,19 @@ require('lazy').setup({
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
     end,
+  },
+
+  -- Custom plugin for tree
+  -- TODO: figure out how to change setting to open as a floating window and close when you're done with it
+  {
+    'nvim-neo-tree/neo-tree.nvim',
+    branch = 'v3.x',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-tree/nvim-web-devicons', -- not strictly required, but recommended
+      'MunifTanjim/nui.nvim',
+      -- "3rd/image.nvim", -- Optional image support in preview window: See `# Preview Mode` for more information
+    },
   },
 
   -- LSP Plugins
@@ -743,13 +762,14 @@ require('lazy').setup({
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
+    -- 'folke/tokyonight.nvim',
+    'EdenEast/nightfox.nvim',
     priority = 1000, -- Make sure to load this before all the other start plugins.
     init = function()
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'duskfox'
 
       -- You can configure highlights by doing something like:
       vim.cmd.hi 'Comment gui=none'
@@ -781,8 +801,36 @@ require('lazy').setup({
       --  You could remove this setup call if you don't like it,
       --  and try some other statusline plugin
       local statusline = require 'mini.statusline'
+
+      -- TODO: customize status bar
+      --
+      local content_setup = function()
+        local mode, mode_hl = MiniStatusline.section_mode { trunc_width = 120 }
+        local git = MiniStatusline.section_git { trunc_width = 40 }
+        local diff = MiniStatusline.section_diff { trunc_width = 75 }
+        local diagnostics = MiniStatusline.section_diagnostics { trunc_width = 75 }
+        local lsp = MiniStatusline.section_lsp { trunc_width = 75 }
+        local filename = MiniStatusline.section_filename { trunc_width = 140 }
+        local fileinfo = MiniStatusline.section_fileinfo { trunc_width = 120 }
+        local location = MiniStatusline.section_location { trunc_width = 75 }
+        local search = MiniStatusline.section_searchcount { trunc_width = 75 }
+
+        return MiniStatusline.combine_groups {
+          { hl = mode_hl, strings = { mode } },
+          { hl = 'MiniStatuslineDevinfo', strings = { git, diff, diagnostics, lsp } },
+          '%<', -- Mark general truncate point
+          { hl = 'MiniStatuslineFilename', strings = { filename } },
+          '%=', -- End left alignment
+          { hl = 'MiniStatuslineFileinfo', strings = { fileinfo } },
+          { hl = mode_hl, strings = { search, location } },
+        }
+      end
+
       -- set use_icons to true if you have a Nerd Font
-      statusline.setup { use_icons = vim.g.have_nerd_font }
+      statusline.setup {
+        use_icons = vim.g.have_nerd_font,
+        content = { active = content_setup },
+      }
 
       -- You can configure sections in the statusline by overriding their
       -- default behavior. For example, here we set the section for
