@@ -810,50 +810,69 @@ require('lazy').setup({
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
       --  and try some other statusline plugin
-      local statusline = require 'mini.statusline'
+      -- local statusline = require 'mini.statusline'
 
-      -- TODO: customize status bar
-      --
-      local content_setup = function()
-        local mode, mode_hl = MiniStatusline.section_mode { trunc_width = 120 }
-        local git = MiniStatusline.section_git { trunc_width = 40 }
-        local diff = MiniStatusline.section_diff { trunc_width = 75 }
-        local diagnostics = MiniStatusline.section_diagnostics { trunc_width = 75 }
-        local lsp = MiniStatusline.section_lsp { trunc_width = 75 }
-        local filename = MiniStatusline.section_filename { trunc_width = 140 }
-        local fileinfo = MiniStatusline.section_fileinfo { trunc_width = 120 }
-        local location = MiniStatusline.section_location { trunc_width = 75 }
-        local search = MiniStatusline.section_searchcount { trunc_width = 75 }
-
-        return MiniStatusline.combine_groups {
-          { hl = mode_hl, strings = { mode } },
-          { hl = 'MiniStatuslineDevinfo', strings = { git, diff, diagnostics, lsp } },
-          '%<', -- Mark general truncate point
-          { hl = 'MiniStatuslineFilename', strings = { filename } },
-          '%=', -- End left alignment
-          { hl = 'MiniStatuslineFileinfo', strings = { fileinfo } },
-          { hl = mode_hl, strings = { search, location } },
-        }
-      end
-
-      -- set use_icons to true if you have a Nerd Font
-      statusline.setup {
-        use_icons = vim.g.have_nerd_font,
-        content = { active = content_setup },
-      }
-
+      -- statusline.setup { use_icons = vim.g.have_nerd_font }
       -- You can configure sections in the statusline by overriding their
       -- default behavior. For example, here we set the section for
       -- cursor location to LINE:COLUMN
-      ---@diagnostic disable-next-line: duplicate-set-field
-      statusline.section_location = function()
-        return '%2l:%-2v'
-      end
+      -- -@diagnostic disable-next-line: duplicate-set-field
+      -- statusline.section_location = function()
+      -- return '%2l:%-2v'
+      -- end
 
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
     end,
   },
+
+  {
+    'nvim-lualine/lualine.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      require('lualine').setup {
+        options = {
+          icons_enabled = true,
+          theme = 'auto',
+          component_separators = { left = '', right = '' },
+          section_separators = { left = '', right = '' },
+          disabled_filetypes = {
+            statusline = {},
+            winbar = {},
+          },
+          ignore_focus = {},
+          always_divide_middle = true,
+          globalstatus = false,
+          refresh = {
+            statusline = 1000,
+            tabline = 1000,
+            winbar = 1000,
+          },
+        },
+        sections = {
+          lualine_a = { 'mode' },
+          lualine_b = { 'branch', 'diff', 'diagnostics' },
+          lualine_c = { 'filename' },
+          lualine_x = { 'encoding', 'fileformat', 'filetype' },
+          lualine_y = { 'progress' },
+          lualine_z = { 'location' },
+        },
+        inactive_sections = {
+          lualine_a = {},
+          lualine_b = {},
+          lualine_c = { 'filename' },
+          lualine_x = { 'location' },
+          lualine_y = {},
+          lualine_z = {},
+        },
+        tabline = {},
+        winbar = {},
+        inactive_winbar = {},
+        extensions = {},
+      }
+    end,
+  },
+
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
