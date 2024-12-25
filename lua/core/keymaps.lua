@@ -44,3 +44,13 @@ vim.api.nvim_create_autocmd('TextYankPost', {
     vim.highlight.on_yank()
   end,
 })
+
+vim.api.nvim_create_autocmd('BufRead', {
+  pattern = { '*.html' },
+  callback = function()
+    vim.opt.tabstop = 4
+    vim.opt.shiftwidth = 2
+    vim.opt.softtabstop = -1
+    vim.opt.expandtab = true
+  end,
+})
