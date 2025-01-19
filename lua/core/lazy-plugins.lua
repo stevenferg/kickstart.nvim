@@ -21,6 +21,8 @@ require('lazy').setup({
   --
 
   -- Kickstart plugins
+  require 'plugins.autopairs',
+
   require 'plugins.gitsigns',
 
   require 'plugins.which-key',

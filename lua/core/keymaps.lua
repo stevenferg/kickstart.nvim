@@ -54,3 +54,11 @@ vim.api.nvim_create_autocmd('BufRead', {
     vim.opt.expandtab = true
   end,
 })
+
+-- autocommand to set the file type to scss for tcss
+vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWinEnter' }, {
+  pattern = { '*.tcss' },
+  callback = function()
+    vim.cmd 'set filetype=scss'
+  end,
+})
